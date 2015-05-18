@@ -187,7 +187,7 @@ function prepData(esData, appendOther) {
     var item = esData.buckets[idx];
     data[data.length] = {'key': item.key, 'value': item.doc_count};
   }
-  if (appendOther) {
+  if (appendOther && esData.sum_other_doc_count > 0) {
     data[data.length] = {'key': 'other', 'value': esData.sum_other_doc_count};
   }
   return data;
@@ -260,7 +260,22 @@ function FilterThing(elem, field, value){
 }
 
 FilterThing.prototype.setState = function() {
-  console.log("state for "+this.field+":"+this.value+" is "+this.elem.checked);
+  for (name in config) {
+    var item = config[name];
+    if (item.field === this.field) {
+      if (this.elem.checked) {
+        // add the entry to the filter
+        if (!item.must) {
+          item.must = [];
+        }
+        item.must = [{"type": "term", "condition": this.value}];
+      } else {
+        // remove the entry from the filter
+        item.must = [];
+      }
+    }
+  }
+  onClick();
 };
 
 function TLSERDoughnut(parentElem, field, data, transformer) {
@@ -301,8 +316,15 @@ TLSERDoughnut.prototype.showLists = function(data) {
     var filterLabel = document.createElement('label');
     filterLabel.textContent = "filter";
     filterLabel.htmlFor = filterBox.id;
+    for (sectionName in config) {
+      var section = config[sectionName];
+      if (section.field === this.field && section.must && section.must.length > 0) {
+        filterBox.checked = true;
+      }
+    }
 
-    filterThing = new FilterThing(filterBox, this.field, item.key);
+    filterThing = new FilterThing(filterBox, this.field,
+        this.transformer ? this.transformer.reverse(item.key, item.value) : item.key);
 
     filter.appendChild(filterBox);
     filter.appendChild(filterLabel);
@@ -390,13 +412,14 @@ function reqListener() {
           chart = new TLSERTime(chartsDiv, obj.aggregations[aggName]);
         } else {
           var fieldName = null;
-          var agg = queryTemplate.aggs[aggName];
-          if (agg && agg.terms && agg.terms.field) {
-            fieldName = agg.terms.field;
+          var agg = config[aggName];
+          if (agg.field) {
+            fieldName = agg.field;
           }
           chart = new TLSERDoughnut(chartsDiv, fieldName, obj.aggregations[aggName], transformer);
         }
         charts[aggName] = chart;
+        console.log(charts);
       } else {
         chart.updateData(obj.aggregations[aggName]);
       }
