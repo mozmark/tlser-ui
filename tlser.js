@@ -280,28 +280,90 @@ FilterThing.prototype.setState = function() {
 
 function TLSERDoughnut(parentElem, field, data, transformer) {
   this.mainDiv = document.createElement('div');
+  this.heading = document.createElement('h3');
+  this.heading.textContent = field;
+  this.mainDiv.appendChild(this.heading);
   this.field = field;
   this.canvas = document.createElement('canvas');
   this.canvas.className = "doughnut";
+  this.resultContainer = document.createElement('div');
   this.resultTable = document.createElement('table');
   this.canvas.id = "doughnut-1";
   this.mainDiv.appendChild(this.canvas);
-  this.mainDiv.appendChild(this.resultTable);
+  var resultHeading = document.createElement('h4');
+  resultHeading.textContent = 'Top results';
+  this.resultContainer.appendChild(resultHeading);
+  this.excludeHeading = document.createElement('h4');
+  this.excludeHeading.textContent = 'Excluded';
+  this.excludeTable = document.createElement('table');
+  // TODO move the default (display: none) to the CSS
+  this.excludeHeading.style.display = 'none';
+  this.excludeTable.style.display = 'none';
+  this.resultContainer.appendChild(this.resultTable);
+  this.resultContainer.appendChild(this.excludeHeading);
+  this.resultContainer.appendChild(this.excludeTable);
+  this.mainDiv.appendChild(this.resultContainer);
   parentElem.appendChild(this.mainDiv);
   this.transformer = transformer;
   this.updateData(data);
 }
 
 TLSERDoughnut.prototype.showLists = function(data) {
+  var appendExcludes = false;
+
   // clear the div of elements
   var output = this.resultTable;
   while(output.childElementCount > 0){
     output.removeChild(output.childNodes[0]);
   }
 
+  var configSection = null;
+  for (sectionName in config) {
+    var section = config[sectionName];
+    if (section.field === this.field) {
+      configSection = section;
+      break;
+    }
+  }
+
+  if (configSection && configSection.must_not) {
+    for (idx in configSection.must_not) {
+      var obj = configSection.must_not[idx];
+      var excludeRow = document.createElement('tr');
+      var excludeActions = document.createElement('td');
+      var unexcludeButton = document.createElement('button');
+      unexcludeButton.textContent = 'include';
+      unexcludeButton.addEventListener('click', function(){
+        configSection.must_not = [];
+        onClick();
+      },false);
+      excludeActions.appendChild(unexcludeButton);
+      var excludeKeyCell = document.createElement('td');
+      excludeKeyCell.textContent = configSection.field;
+      var excludeValueCell = document.createElement('td');
+      excludeValueCell.textContent = obj.condition;
+
+      excludeRow.appendChild(excludeActions);
+      excludeRow.appendChild(excludeKeyCell);
+      excludeRow.appendChild(excludeValueCell);
+
+      this.excludeTable.appendChild(excludeRow);
+      appendExcludes = true;
+    }
+  }
+
+  if (appendExcludes) {
+    this.excludeHeading.style.display = '';
+    this.excludeTable.style.display = '';
+  } else {
+    this.excludeHeading.style.display = 'none';
+    this.excludeTable.style.display = 'none';
+  }
+
   // show the results in the result list
   for (idx in data) {
     var item = data[idx];
+    console.log("processing "+item.key);
     var row = document.createElement('tr');
     var actionsCell = document.createElement('td');
     var keyCell = document.createElement('td');
@@ -316,11 +378,10 @@ TLSERDoughnut.prototype.showLists = function(data) {
     var filterLabel = document.createElement('label');
     filterLabel.textContent = "filter";
     filterLabel.htmlFor = filterBox.id;
-    for (sectionName in config) {
-      var section = config[sectionName];
-      if (section.field === this.field && section.must && section.must.length > 0) {
-        filterBox.checked = true;
-      }
+
+    console.log(" processing "+configSection.field);
+    if (configSection.must && configSection.must.length > 0) {
+      filterBox.checked = true;
     }
 
     filterThing = new FilterThing(filterBox, this.field,
@@ -419,7 +480,6 @@ function reqListener() {
           chart = new TLSERDoughnut(chartsDiv, fieldName, obj.aggregations[aggName], transformer);
         }
         charts[aggName] = chart;
-        console.log(charts);
       } else {
         chart.updateData(obj.aggregations[aggName]);
       }
