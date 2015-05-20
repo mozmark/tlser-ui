@@ -251,33 +251,6 @@ TLSERTime.prototype.showChart = function(data) {
   this.chart = new Chart(ctx).Line(dataToRender, options);
 };
 
-
-function FilterThing(elem, field, value){
-  this.elem = elem;
-  this.field = field;
-  this.value = value;
-  elem.onchange = this.setState.bind(this);
-}
-
-FilterThing.prototype.setState = function() {
-  for (name in config) {
-    var item = config[name];
-    if (item.field === this.field) {
-      if (this.elem.checked) {
-        // add the entry to the filter
-        if (!item.must) {
-          item.must = [];
-        }
-        item.must = [{"type": "term", "condition": this.value}];
-      } else {
-        // remove the entry from the filter
-        item.must = [];
-      }
-    }
-  }
-  onClick();
-};
-
 function TLSERDoughnut(parentElem, field, data, transformer) {
   this.mainDiv = document.createElement('div');
   this.heading = document.createElement('h3');
@@ -316,6 +289,9 @@ TLSERDoughnut.prototype.showLists = function(data) {
   while(output.childElementCount > 0){
     output.removeChild(output.childNodes[0]);
   }
+  while(this.excludeTable.childElementCount > 0){
+    this.excludeTable.removeChild(this.excludeTable.childNodes[0]);
+  }
 
   var configSection = null;
   for (sectionName in config) {
@@ -331,13 +307,16 @@ TLSERDoughnut.prototype.showLists = function(data) {
       var obj = configSection.must_not[idx];
       var excludeRow = document.createElement('tr');
       var excludeActions = document.createElement('td');
-      var unexcludeButton = document.createElement('button');
-      unexcludeButton.textContent = 'include';
-      unexcludeButton.addEventListener('click', function(){
-        configSection.must_not = [];
-        onClick();
-      },false);
-      excludeActions.appendChild(unexcludeButton);
+      var includeButton = document.createElement('button');
+      includeButton.textContent = 'include';
+      var excludeCb = function(excludeSection) {
+        return function(evt) {
+          excludeSection.must_not = [];
+          onClick();
+        };
+      }(configSection);
+      includeButton.addEventListener('click', excludeCb, false);
+      excludeActions.appendChild(includeButton);
       var excludeKeyCell = document.createElement('td');
       excludeKeyCell.textContent = configSection.field;
       var excludeValueCell = document.createElement('td');
@@ -384,8 +363,48 @@ TLSERDoughnut.prototype.showLists = function(data) {
       filterBox.checked = true;
     }
 
-    filterThing = new FilterThing(filterBox, this.field,
-        this.transformer ? this.transformer.reverse(item.key, item.value) : item.key);
+    var filterKey = this.transformer ?
+        this.transformer.reverse(item.key, item.value) :
+        item.key;
+
+    var filterCb = function(field, value) {
+      return function(evt) {
+        console.log("invoked for "+field+" : "+value);
+        for (name in config) {
+          var item = config[name];
+          if (item.field === field) {
+            if (evt.target.checked) {
+              // add the entry to the filter
+              if (!item.must) {
+                item.must = [];
+              }
+              item.must = [{"type": "term", "condition": value}];
+            } else {
+              // remove the entry from the filter
+              item.must = [];
+            }
+          }
+        }
+        onClick();
+      };
+    }(this.field, filterKey);
+
+    var excludeCb = function(excludeSection, value) {
+      return function(evt) {
+        if (!excludeSection.must_not) {
+          excludeSection.must_not = [];
+        }
+        excludeSection.must_not[excludeSection.must_not.length] = {"type": "term", "condition": value};
+        onClick();
+      };
+    }(configSection, filterKey);
+
+    var excludeBtn = document.createElement('button');
+    excludeBtn.textContent = 'exclude';
+    excludeBtn.addEventListener('click', excludeCb, false);
+    actionsCell.appendChild(excludeBtn);
+
+    filterBox.addEventListener('change', filterCb, false);
 
     filter.appendChild(filterBox);
     filter.appendChild(filterLabel);
