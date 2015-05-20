@@ -253,6 +253,7 @@ TLSERTime.prototype.showChart = function(data) {
 
 function TLSERDoughnut(parentElem, field, data, transformer) {
   this.mainDiv = document.createElement('div');
+  this.mainDiv.className = 'chart-section';
   this.heading = document.createElement('h3');
   this.heading.textContent = field;
   this.mainDiv.appendChild(this.heading);
@@ -260,8 +261,9 @@ function TLSERDoughnut(parentElem, field, data, transformer) {
   this.canvas = document.createElement('canvas');
   this.canvas.className = "doughnut";
   this.resultContainer = document.createElement('div');
+  this.resultContainer.className = "doughnut-result";
   this.resultTable = document.createElement('table');
-  this.canvas.id = "doughnut-1";
+  this.canvas.id = "doughnut-"+field;
   this.mainDiv.appendChild(this.canvas);
   var resultHeading = document.createElement('h4');
   resultHeading.textContent = 'Top results';
