@@ -20,6 +20,10 @@ td.actions-cell {
 }
 
 button.exclude-btn {
+  border:none;
+  box-shadow:none;
+  background: url(exclude.svg) no-repeat top left;
+  background-size: contain;
   height: 16px;
   width: 16px;
   display: block-inline
