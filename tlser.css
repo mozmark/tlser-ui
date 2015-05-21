@@ -1,11 +1,54 @@
 body {
+  font-size: -2px;
+  font-family: sans-serif;
   background-color: #ccccff
 }
 
+h3 {
+  background-color: #ccffcc
+}
+
 canvas.doughnut {
-  width: 300;
-  height: 300;
+  width: 200;
+  height: 200;
   float: left
+}
+
+td.actions-cell {
+  width: 32px;
+  margin: 0px
+}
+
+button.exclude-btn {
+  height: 16px;
+  width: 16px;
+  display: block-inline
+}
+
+input.switch {
+  height: 16px;
+}
+
+input[type=checkbox].switch {
+  display:none;
+}
+
+input[type=checkbox].switch + label
+{
+  background: #999;
+  height: 16px;
+  width: 16px;
+  display:inline-block;
+  padding: 0 0 0 0px;
+}
+
+input[type=checkbox].switch:checked + label
+{
+  background: #0080FF;
+  height: 16px;
+  width: 16px;
+  display:inline-block;
+  padding: 0 0 0 0px;
 }
 
 div.chart-section {
@@ -14,6 +57,13 @@ div.chart-section {
   display: inline-block;
   border-radius: 5px;
   margin: 5px;
+  padding: 5px
+}
+
+div.line-section {
+  background-color: #ffffff;
+  width: 100%;
+  border-radius: 5px;
   padding: 5px
 }
 

@@ -195,6 +195,7 @@ function prepData(esData, appendOther) {
 
 function TLSERTime(parentElem, data) {
   this.mainDiv = document.createElement('div');
+  this.mainDiv.className = "line-section";
   this.canvas = document.createElement('canvas');
   this.canvas.className = "line";
   this.canvas.id = "line-1";
@@ -346,7 +347,10 @@ TLSERDoughnut.prototype.showLists = function(data) {
     var item = data[idx];
     console.log("processing "+item.key);
     var row = document.createElement('tr');
-    var actionsCell = document.createElement('td');
+    var filterCell = document.createElement('td');
+    filterCell.className = 'actions-cell';
+    var excludeCell = document.createElement('td');
+    excludeCell.className = 'actions-cell';
     var keyCell = document.createElement('td');
     var valCell = document.createElement('td');
     // add actions
@@ -357,8 +361,9 @@ TLSERDoughnut.prototype.showLists = function(data) {
     filterBox.id = item.key+"-switch";
 
     var filterLabel = document.createElement('label');
-    filterLabel.textContent = "filter";
+    /*filterLabel.textContent = "filter";*/
     filterLabel.htmlFor = filterBox.id;
+    filterLabel.title = 'Filter by this value';
 
     console.log(" processing "+configSection.field);
     if (configSection.must && configSection.must.length > 0) {
@@ -402,18 +407,21 @@ TLSERDoughnut.prototype.showLists = function(data) {
     }(configSection, filterKey);
 
     var excludeBtn = document.createElement('button');
-    excludeBtn.textContent = 'exclude';
+    /*excludeBtn.textContent = ' ';*/
+    excludeBtn.className = 'exclude-btn';
+    excludeBtn.title = 'Exclude this value from results';
     excludeBtn.addEventListener('click', excludeCb, false);
-    actionsCell.appendChild(excludeBtn);
+    excludeCell.appendChild(excludeBtn);
 
     filterBox.addEventListener('change', filterCb, false);
 
     filter.appendChild(filterBox);
     filter.appendChild(filterLabel);
-    actionsCell.appendChild(filter);
+    filterCell.appendChild(filter);
     keyCell.textContent = item.key;
     valCell.textContent = item.value;
-    row.appendChild(actionsCell);
+    row.appendChild(filterCell);
+    row.appendChild(excludeCell);
     row.appendChild(keyCell);
     row.appendChild(valCell);
     output.appendChild(row);
