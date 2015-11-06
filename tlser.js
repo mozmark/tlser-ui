@@ -156,8 +156,8 @@ function buildQuery() {
   // Loop over the config items, add "must", "must_not" items
   for (item in config) {
     var section = config[item];
-    var field = section['field'];
-    var agg = section['aggregate'];
+    var field = section["field"];
+    var agg = section["aggregate"];
     if (agg) {
       var aggSection = {};
       aggSection[agg.type] = {"field": field};
@@ -185,18 +185,18 @@ function prepData(esData, appendOther) {
   // turn data into a list of key / val pairs for listing / rendering
   for (idx in esData.buckets) {
     var item = esData.buckets[idx];
-    data[data.length] = {'key': item.key, 'value': item.doc_count};
+    data[data.length] = {"key": item.key, "value": item.doc_count};
   }
   if (appendOther && esData.sum_other_doc_count > 0) {
-    data[data.length] = {'key': 'other', 'value': esData.sum_other_doc_count};
+    data[data.length] = {"key": "other", "value": esData.sum_other_doc_count};
   }
   return data;
 }
 
 function TLSERTime(parentElem, data) {
-  this.mainDiv = document.createElement('div');
+  this.mainDiv = document.createElement("div");
   this.mainDiv.className = "line-section";
-  this.canvas = document.createElement('canvas');
+  this.canvas = document.createElement("canvas");
   this.canvas.className = "line";
   this.canvas.id = "line-1";
   this.mainDiv.appendChild(this.canvas);
@@ -253,28 +253,28 @@ TLSERTime.prototype.showChart = function(data) {
 };
 
 function TLSERDoughnut(parentElem, field, data, transformer) {
-  this.mainDiv = document.createElement('div');
-  this.mainDiv.className = 'chart-section';
-  this.heading = document.createElement('h3');
+  this.mainDiv = document.createElement("div");
+  this.mainDiv.className = "chart-section";
+  this.heading = document.createElement("h3");
   this.heading.textContent = field;
   this.mainDiv.appendChild(this.heading);
   this.field = field;
-  this.canvas = document.createElement('canvas');
+  this.canvas = document.createElement("canvas");
   this.canvas.className = "doughnut";
-  this.resultContainer = document.createElement('div');
+  this.resultContainer = document.createElement("div");
   this.resultContainer.className = "doughnut-result";
-  this.resultTable = document.createElement('table');
+  this.resultTable = document.createElement("table");
   this.canvas.id = "doughnut-"+field;
   this.mainDiv.appendChild(this.canvas);
-  var resultHeading = document.createElement('h4');
-  resultHeading.textContent = 'Top results';
+  var resultHeading = document.createElement("h4");
+  resultHeading.textContent = "Top results";
   this.resultContainer.appendChild(resultHeading);
-  this.excludeHeading = document.createElement('h4');
-  this.excludeHeading.textContent = 'Excluded';
-  this.excludeTable = document.createElement('table');
+  this.excludeHeading = document.createElement("h4");
+  this.excludeHeading.textContent = "Excluded";
+  this.excludeTable = document.createElement("table");
   // TODO move the default (display: none) to the CSS
-  this.excludeHeading.style.display = 'none';
-  this.excludeTable.style.display = 'none';
+  this.excludeHeading.style.display = "none";
+  this.excludeTable.style.display = "none";
   this.resultContainer.appendChild(this.resultTable);
   this.resultContainer.appendChild(this.excludeHeading);
   this.resultContainer.appendChild(this.excludeTable);
@@ -308,25 +308,22 @@ TLSERDoughnut.prototype.showLists = function(data) {
   if (configSection && configSection.must_not) {
     for (idx in configSection.must_not) {
       var obj = configSection.must_not[idx];
-      var excludeRow = document.createElement('tr');
-      var excludeActions = document.createElement('td');
-      var includeButton = document.createElement('button');
-      includeButton.textContent = 'include';
+      var excludeRow = document.createElement("tr");
+      var excludeActions = document.createElement("td");
+      var includeButton = document.createElement("button");
+      includeButton.textContent = "include";
       var excludeCb = function(excludeSection) {
         return function(evt) {
           excludeSection.must_not = [];
-          onClick();
+          submit();
         };
       }(configSection);
-      includeButton.addEventListener('click', excludeCb, false);
+      includeButton.addEventListener("click", excludeCb, false);
       excludeActions.appendChild(includeButton);
-      var excludeKeyCell = document.createElement('td');
-      excludeKeyCell.textContent = configSection.field;
-      var excludeValueCell = document.createElement('td');
+      var excludeValueCell = document.createElement("td");
       excludeValueCell.textContent = obj.condition;
 
       excludeRow.appendChild(excludeActions);
-      excludeRow.appendChild(excludeKeyCell);
       excludeRow.appendChild(excludeValueCell);
 
       this.excludeTable.appendChild(excludeRow);
@@ -335,39 +332,40 @@ TLSERDoughnut.prototype.showLists = function(data) {
   }
 
   if (appendExcludes) {
-    this.excludeHeading.style.display = '';
-    this.excludeTable.style.display = '';
+    this.excludeHeading.style.display = "";
+    this.excludeTable.style.display = "";
   } else {
-    this.excludeHeading.style.display = 'none';
-    this.excludeTable.style.display = 'none';
+    this.excludeHeading.style.display = "none";
+    this.excludeTable.style.display = "none";
   }
 
   // show the results in the result list
   for (idx in data) {
     var item = data[idx];
     console.log("processing "+item.key);
-    var row = document.createElement('tr');
-    var filterCell = document.createElement('td');
-    filterCell.className = 'actions-cell';
-    var excludeCell = document.createElement('td');
-    excludeCell.className = 'actions-cell';
-    var keyCell = document.createElement('td');
-    var valCell = document.createElement('td');
+    var row = document.createElement("tr");
+    var filterCell = document.createElement("td");
+    filterCell.className = "actions-cell";
+    var excludeCell = document.createElement("td");
+    excludeCell.className = "actions-cell";
+    var keyCell = document.createElement("td");
+    var valCell = document.createElement("td");
     // add actions
-    var filter = document.createElement('div');
-    var filterBox = document.createElement('input');
-    filterBox.type = 'checkbox';
-    filterBox.className = 'switch';
+    var filter = document.createElement("div");
+    var filterBox = document.createElement("input");
+    filterBox.type = "checkbox";
+    filterBox.className = "switch";
     filterBox.id = item.key+"-switch";
 
-    var filterLabel = document.createElement('label');
+    var filterLabel = document.createElement("label");
     /*filterLabel.textContent = "filter";*/
     filterLabel.htmlFor = filterBox.id;
-    filterLabel.title = 'Filter by this value';
+    filterLabel.title = "Filter by this value";
 
     console.log(" processing "+configSection.field);
     if (configSection.must && configSection.must.length > 0) {
       filterBox.checked = true;
+      filterLabel.title = "Remove filter";
     }
 
     var filterKey = this.transformer ?
@@ -392,7 +390,7 @@ TLSERDoughnut.prototype.showLists = function(data) {
             }
           }
         }
-        onClick();
+        submit();
       };
     }(this.field, filterKey);
 
@@ -402,18 +400,18 @@ TLSERDoughnut.prototype.showLists = function(data) {
           excludeSection.must_not = [];
         }
         excludeSection.must_not[excludeSection.must_not.length] = {"type": "term", "condition": value};
-        onClick();
+        submit();
       };
     }(configSection, filterKey);
 
-    var excludeBtn = document.createElement('button');
-    /*excludeBtn.textContent = ' ';*/
-    excludeBtn.className = 'exclude-btn';
-    excludeBtn.title = 'Exclude this value from results';
-    excludeBtn.addEventListener('click', excludeCb, false);
+    var excludeBtn = document.createElement("button");
+    /*excludeBtn.textContent = " ";*/
+    excludeBtn.className = "exclude-btn";
+    excludeBtn.title = "Exclude this value from results";
+    excludeBtn.addEventListener("click", excludeCb, false);
     excludeCell.appendChild(excludeBtn);
 
-    filterBox.addEventListener('change', filterCb, false);
+    filterBox.addEventListener("change", filterCb, false);
 
     filter.appendChild(filterBox);
     filter.appendChild(filterLabel);
@@ -486,7 +484,7 @@ function reqListener() {
     var obj = JSON.parse(this.responseText);
 
     aggs = obj.aggregations;
-    var chartsDiv = document.getElementById('charts');
+    var chartsDiv = document.getElementById("charts");
 
     for (aggName in obj.aggregations) {
       // Find or create a chart for this data
@@ -518,17 +516,38 @@ function reqListener() {
   }
 }
 
-var output = document.getElementById('output');
+var output = document.getElementById("output");
 
 var oReq = new XMLHttpRequest();
 oReq.onload = reqListener;
 
 
-function onClick() {
+let fields = document.getElementById("fields");
+let search_value = document.getElementById("search_value");
+let search_field = document.getElementById("search_field");
+for (name in config) {
+  let option = document.createElement("option");
+  option.value = name;
+  fields.appendChild(option);
+}
+
+function submit() {
   console.log("ES_BASE is "+ES_BASE);
   oReq.open("POST", ES_BASE+"/_search?", true);
   oReq.send(JSON.stringify(buildQuery()));
 }
 
-document.getElementById('btn').addEventListener('click', onClick, true);
-onClick();
+function search() {
+  let field = search_field.value;
+  if (config[field]) {
+    config[field].must = [{"type": "term", "condition": search_value.value}];
+  }
+  submit();
+}
+
+document.getElementById("btn").addEventListener("click", submit, true);
+document.getElementById("search_btn").addEventListener("click", search, true);
+document.getElementById("search_form").addEventListener("submit", search, false);
+
+// get aggregates for all by default
+submit();
